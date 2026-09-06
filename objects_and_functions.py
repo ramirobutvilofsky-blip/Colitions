@@ -5,8 +5,8 @@ import itertools as it
 #------------------------------------------------------------------------------------
 # SCREEN
 
-width = 500
-heigh = 500
+width = 1600
+heigh = 800
 
 screen = (width, heigh)
 
@@ -46,12 +46,13 @@ rng = np.random.default_rng()
 
 punto_m = []
 
-for punto in range(30):
+for punto in range(2):
 
-    masa = rng.uniform(1,12)
-    radio = masa*1/2
+    masa = rng.uniform(40,60)
+    radio = masa*1
 
-    punto = Punto(rng.uniform((-screen[0]/2) + radio , (screen[0]/2)-radio), rng.uniform((-screen[1]/2) + radio, (screen[1]/2) - radio) , rng.uniform(-2000,2000) , rng.uniform(-2000,2000),0,5000,
+    punto = Punto(rng.uniform((-screen[0]/2) + radio , (screen[0]/2)-radio), rng.uniform((-screen[1]/2) + radio, (screen[1]/2) - radio) , 
+    rng.uniform(-800,800) , rng.uniform(-800,800),0,1300,
     (rng.integers(220,255),rng.integers(220,255),rng.integers(220,255)),masa, radio)
 
     punto_m.append(punto)
@@ -122,6 +123,38 @@ def choque_elastico_multiple(c):
             j[0].vy = ((j[0].mass - j[1].mass)/(j[0].mass + j[1].mass)) * v01y + (2*j[1].mass/(j[0].mass + j[1].mass) * v02y)
 
             j[1].vy = (2*j[0].mass/(j[0].mass + j[1].mass) * v01y) + ((j[1].mass - j[0].mass)/(j[0].mass + j[1].mass)) * v02y
+
+            if v01x > 0:
+
+                j[0].x -= 2
+
+            elif v01x < 0:
+
+                j[0].x += 2
+
+            if v01y > 0:
+
+                j[0].y -= 2
+
+            elif v01y <0:
+
+                j[0].y += 2
+
+            if v02x > 0:
+
+                j[1].x -= 2
+
+            elif v02x < 0:
+
+                j[1].x += 2
+
+            if v02y > 0:
+
+                j[1].y -= 2
+
+            elif v02y < 0:
+
+                j[1].y += 2
 
 # ----------------------------------------------------------------------------------------------
 # DIBUJOS EN PANTALLA ----------------------------------------------------------------------------------------------
