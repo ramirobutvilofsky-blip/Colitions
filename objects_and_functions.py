@@ -5,8 +5,8 @@ import itertools as it
 #------------------------------------------------------------------------------------
 # SCREEN
 
-width = 1650
-heigh = 800
+width = 500
+heigh = 500
 
 screen = (width, heigh)
 
@@ -46,13 +46,13 @@ rng = np.random.default_rng()
 
 punto_m = []
 
-for punto in range(5):
+for punto in range(30):
 
-    masa = rng.uniform(10,200)
+    masa = rng.uniform(1,12)
     radio = masa*1/2
 
-    punto = Punto(rng.uniform((-screen[0]/2) + radio , (screen[0]/2)-radio), rng.uniform((-screen[1]/2) + radio, (screen[1]/2) - radio) , rng.uniform(-2000,2000) , rng.uniform(-2000,2000),0,2000,
-    (rng.integers(100,255),rng.integers(100,255),rng.integers(100,255)),masa, radio)
+    punto = Punto(rng.uniform((-screen[0]/2) + radio , (screen[0]/2)-radio), rng.uniform((-screen[1]/2) + radio, (screen[1]/2) - radio) , rng.uniform(-2000,2000) , rng.uniform(-2000,2000),0,5000,
+    (rng.integers(220,255),rng.integers(220,255),rng.integers(220,255)),masa, radio)
 
     punto_m.append(punto)
 
@@ -72,18 +72,22 @@ def colisiones_multiples_bordes(c):
 
         if (i.x >= screen[0]/2 - i.radius):
 
+            i.x -= 3
             i.vx = -i.vx
 
         elif (i.x <= -screen[0]/2 + i.radius):
 
+            i.x += 3
             i.vx = -i.vx
 
         elif (i.y >= screen[1]/2 - i.radius):
 
+            i.y -= 3
             i.vy = -i.vy
 
         elif (i.y <= -screen[1]/2 + i.radius):
 
+            i.y += 3
             i.vy = -i.vy
     
 #---------------------------------------------------------------
