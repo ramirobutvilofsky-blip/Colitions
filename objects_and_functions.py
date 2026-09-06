@@ -1,16 +1,25 @@
 import numpy as np
 import pygame as pg
+import itertools as it
 
 #------------------------------------------------------------------------------------
 # SCREEN
 
-width = 1500
+width = 1650
 heigh = 800
 
-screen = pg.display.set_mode((width,heigh))
+screen = (width, heigh)
+
+display = pg.display.set_mode((screen[0],screen[1]))
+
+# ----------------------------------------------------------------------------------------------
+# TIEMPO ----------------------------------------------------------------------------------------------
+
+clock = pg.time.Clock()
+dt = clock.tick(1000)/1000
 
 #-------------------------------------------------------------------------------------
-# Clases
+# CLASES
 
 class Punto():
 
@@ -30,73 +39,102 @@ class Punto():
         y = self.y + heigh/2
         pg.draw.circle(screen, self.color, (x,y) , self.radius)
 
-punto1 = Punto(-100, 0 , 1200 , 0 , 0 , 2000 , (140,60,60) , 100 , 70)
-punto2 = Punto(100 , 0 , -200 , -800 , 0 , 2000 , (200,200,220) , 40 , 30)
+#--------------------------------------------------------------------------------------
+# OBJETOS
+
+rng = np.random.default_rng()
+
+punto_m = []
+
+for punto in range(5):
+
+    masa = rng.uniform(10,200)
+    radio = masa*1/2
+
+    punto = Punto(rng.uniform((-screen[0]/2) + radio , (screen[0]/2)-radio), rng.uniform((-screen[1]/2) + radio, (screen[1]/2) - radio) , rng.uniform(-2000,2000) , rng.uniform(-2000,2000),0,2000,
+    (rng.integers(100,255),rng.integers(100,255),rng.integers(100,255)),masa, radio)
+
+    punto_m.append(punto)
+
+# ----------------------------------------------------------------------------------------------
+# COMBINACIONES 1 A 1 ----------------------------------------------------------------------------------------------
+
+combinaciones = it.combinations(punto_m , 2)
+
+comb = list(combinaciones)
 
 #--------------------------------------------------------------------------------------
 # BORDES
 
-def colisiones_bordes():
+def colisiones_multiples_bordes(c):
 
-    if (punto1.x >= width/2 - punto1.radius):
+    for i in c:
 
-        punto1.vx = -punto1.vx
+        if (i.x >= screen[0]/2 - i.radius):
 
-    elif (punto1.x <= -width/2 + punto1.radius):
+            i.vx = -i.vx
 
-        punto1.vx = -punto1.vx
+        elif (i.x <= -screen[0]/2 + i.radius):
 
-    elif (punto2.x >= width/2 - punto2.radius):
+            i.vx = -i.vx
 
-        punto2.vx = -punto2.vx
+        elif (i.y >= screen[1]/2 - i.radius):
 
-    elif (punto2.x <= -width/2 + punto2.radius):
+            i.vy = -i.vy
 
-        punto2.vx = -punto2.vx
+        elif (i.y <= -screen[1]/2 + i.radius):
 
-    elif (punto1.y >= heigh/2 - punto1.radius):
-
-        punto1.vy = -punto1.vy
-
-    elif (punto1.y <= -heigh/2 + punto1.radius):
-
-        punto1.vy = -punto1.vy
-
-    elif (punto2.y >= heigh/2 - punto2.radius):
-
-        punto2.vy = -punto2.vy
-
-    elif (punto2.y <= -heigh/2 + punto2.radius):
-
-        punto2.vy = -punto2.vy
+            i.vy = -i.vy
     
 #---------------------------------------------------------------
 # CHOQUE ELASTICO
 
-def choque_elastico():
+def choque_elastico_multiple(c):
 
-    v01x = punto1.vx
-    v02x = punto2.vx
+    for i in c:
 
-    v01y = punto1.vy
-    v02y = punto2.vy
+        j = i
 
-    vector_1 = np.array([punto1.x , punto1.y])
-    
-    vector_2 = np.array([punto2.x , punto2.y])
+        v01x = j[0].vx
+        v02x = j[1].vx
 
-    vector_dif = vector_2 - vector_1
+        v01y = j[0].vy
+        v02y = j[1].vy
 
-    modulo_distancia = np.sqrt(vector_dif[0]**2 + vector_dif[1]**2)
+        vector_1 = np.array([j[0].x , j[0].y])
+        
+        vector_2 = np.array([j[1].x , j[1].y])
 
-    if modulo_distancia < (punto1.radius + punto2.radius):
+        vector_dif = vector_2 - vector_1
 
-        punto1.vx = ((punto1.mass - punto2.mass)/(punto1.mass + punto2.mass)) * v01x + (2*punto2.mass/(punto1.mass + punto2.mass) * v02x)
+        modulo_distancia = np.sqrt(vector_dif[0]**2 + vector_dif[1]**2)
 
-        punto2.vx = (2*punto1.mass/(punto1.mass + punto2.mass) * v01x) + ((punto2.mass - punto1.mass)/(punto1.mass + punto2.mass)) * v02x
+        if modulo_distancia < (j[0].radius + j[1].radius):
 
-        punto1.vy = ((punto1.mass - punto2.mass)/(punto1.mass + punto2.mass)) * v01y + (2*punto2.mass/(punto1.mass + punto2.mass) * v02y)
+            j[0].vx = ((j[0].mass - j[1].mass)/(j[0].mass + j[1].mass)) * v01x + (2*j[1].mass/(j[0].mass + j[1].mass) * v02x)
 
-        punto2.vy = (2*punto1.mass/(punto1.mass + punto2.mass) * v01y) + ((punto2.mass - punto1.mass)/(punto1.mass + punto2.mass)) * v02y
+            j[1].vx = (2*j[0].mass/(j[0].mass + j[1].mass) * v01x) + ((j[1].mass - j[0].mass)/(j[0].mass + j[1].mass)) * v02x
 
-    
+            j[0].vy = ((j[0].mass - j[1].mass)/(j[0].mass + j[1].mass)) * v01y + (2*j[1].mass/(j[0].mass + j[1].mass) * v02y)
+
+            j[1].vy = (2*j[0].mass/(j[0].mass + j[1].mass) * v01y) + ((j[1].mass - j[0].mass)/(j[0].mass + j[1].mass)) * v02y
+
+# ----------------------------------------------------------------------------------------------
+# DIBUJOS EN PANTALLA ----------------------------------------------------------------------------------------------
+
+def plasmar():
+
+    for punto in punto_m:
+
+        punto.draw(display)
+
+def movimiento():
+
+    for punto in punto_m:
+
+        punto.vx += punto.ax*dt # aceleracion en x
+        punto.vy += punto.ay*dt # aceleracion en y
+
+        punto.x += punto.vx*dt  
+        punto.y += punto.vy*dt
+
