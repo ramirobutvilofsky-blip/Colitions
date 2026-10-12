@@ -24,3 +24,5 @@ In 'mass_creator.py' you can change everything about the  particles.
 -velocity and acceleartion
 
 Choose whatever you most enjoy.
+
+To run it, execute 'physics.py' 
